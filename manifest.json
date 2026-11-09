@@ -1,11 +1,14 @@
 {
   "name": "BPSC Master Recall",
   "short_name": "BPSC Recall",
-  "start_url": "./index.html",
+  "description": "Flashcard app for BPSC preparation",
+  "id": "/bpsc-flashcards/",
+  "start_url": "/bpsc-flashcards/index.html",
+  "scope": "/bpsc-flashcards/",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
-  "orientation": "portrait",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Flashcard.svg/192px-Flashcard.svg.png",
