@@ -12,8 +12,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="BPSC Recall">
   <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Flashcard.svg/192px-Flashcard.svg.png">
-</head>
-<body>
 
   <style>
     :root {
@@ -188,7 +186,7 @@
   <div class="modal-overlay" id="backupModal">
     <div class="modal-content">
       <h3 style="color: var(--accent);">जेमिनी बल्क इम्पोर्ट / डेटा बैकअप</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted);">जेमिनी से प्राप्त JSON डेटा यहाँ पेस्ट करें, या दूसरे फोन (iQOO) में भेजने के लिए कॉपी करें।</p>
+      <p style="font-size: 0.85rem; color: var(--text-muted);">जेमिनी से प्राप्त JSON डेटा यहाँ पेस्ट करें, या बैकअप के लिए कॉपी करें।</p>
       <div style="display: flex; gap: 8px;">
         <button id="btnDownload" class="primary" style="flex:1;">📥 JSON डाउनलोड</button>
         <button id="btnCopy" style="flex:1;">📋 कॉपी डेटा</button>
@@ -205,7 +203,9 @@
     // PWA Service Worker Registration
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('.sw_bpsc.js').catch(err => console.log('SW Fail:', err));
+        navigator.serviceWorker.register('./sw_bpsc.js', { scope: './' })
+          .then((reg) => console.log('SW Registered successfully:', reg.scope))
+          .catch((err) => console.error('SW Registration Failed:', err));
       });
     }
 
@@ -235,9 +235,9 @@
         const yDate = yesterday.toISOString().split('T')[0];
 
         if (streakData.lastDate === yDate) {
-           // Continue streak - will increment on first card review today
+           // Continue streak
         } else if (streakData.lastDate && streakData.lastDate !== today) {
-           streakData.count = 0; // Streak broken
+           streakData.count = 0;
         }
       }
       document.getElementById('streakBadge').textContent = `🔥 ${streakData.count} दिन`;
@@ -294,7 +294,6 @@
       if (sub !== "ALL") filtered = filtered.filter(c => c.subject === sub);
       if (tag !== "ALL") filtered = filtered.filter(c => c.tag === tag);
 
-      // Prioritize Box 1, then Box 2, then Box 3
       reviewQueue = filtered.sort((a, b) => (a.box || 1) - (b.box || 1));
       currentIndex = 0;
       renderCard();
@@ -316,16 +315,13 @@
 
       const card = reviewQueue[currentIndex];
       
-      // Update UI texts
       document.querySelectorAll(".badge-subject").forEach(el => el.textContent = card.subject || "विषय");
       document.querySelectorAll(".badge-tag").forEach(el => el.textContent = card.tag ? `#${card.tag}` : "");
       document.getElementById("cardQuestion").textContent = card.question;
       document.getElementById("cardAnswer").textContent = card.answer;
       
-      // Diagram Alert
       document.getElementById("diagramAlert").style.display = card.hasDiagram ? "inline-flex" : "none";
 
-      // Box Badges
       const box = card.box || 1;
       const boxText = `Box ${box} ${box===1?'(कच्चा)':box===2?'(अभ्यासरत)':'(कंठस्थ)'}`;
       document.querySelectorAll(".badge-box").forEach(el => {
@@ -333,14 +329,13 @@
         el.textContent = boxText;
       });
 
-      // Progress
       document.getElementById("statsDisplay").textContent = `${currentIndex + 1} / ${reviewQueue.length}`;
       document.getElementById("progressBar").style.width = `${((currentIndex + 1) / reviewQueue.length) * 100}%`;
     }
 
     function processReview(isGood) {
       if (reviewQueue.length === 0) return;
-      recordActivity(); // Ensure streak is counted
+      recordActivity();
 
       const card = reviewQueue[currentIndex];
       const masterCard = allCards.find(c => c.id === card.id);
@@ -351,7 +346,7 @@
           masterCard.box = Math.min(3, masterCard.box + 1);
         } else {
           masterCard.box = 1; 
-          reviewQueue.push(masterCard); // Force re-review in same session
+          reviewQueue.push(masterCard);
         }
         localStorage.setItem(STORAGE_KEY, JSON.stringify(allCards));
       }
@@ -454,7 +449,7 @@
       document.getElementById("btnCloseBackup").addEventListener("click", () => backupModal.style.display="none");
 
       document.getElementById("btnCopy").addEventListener("click", () => {
-        navigator.clipboard.writeText(JSON.stringify(allCards, null, 2)).then(() => alert("डेटा क्लिपबोर्ड पर कॉपी हो गया! अब WhatsApp पर भेजें।"));
+        navigator.clipboard.writeText(JSON.stringify(allCards, null, 2)).then(() => alert("डेटा क्लिपबोर्ड पर कॉपी हो गया!"));
       });
       document.getElementById("btnDownload").addEventListener("click", () => {
         const url = URL.createObjectURL(new Blob([JSON.stringify(allCards, null, 2)], {type: "application/json"}));
