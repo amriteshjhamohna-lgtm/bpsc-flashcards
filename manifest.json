@@ -1,10 +1,10 @@
 {
-  "id": "/bpsc-flashcards/",
+  "id": "/bpsc-flashcards/recall-app",
   "name": "BPSC Master Recall",
   "short_name": "BPSC Recall",
   "description": "Flashcard app for BPSC preparation",
   "lang": "hi",
-  "start_url": "./",
+  "start_url": "./?source=pwa",
   "scope": "./",
   "display": "standalone",
   "background_color": "#0f172a",
